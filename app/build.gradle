@@ -1,9 +1,11 @@
 plugins {
     id 'com.android.application'
 }
+
 android {
     namespace 'com.system.phantom'
     compileSdk 34
+
     defaultConfig {
         applicationId "com.system.phantom"
         minSdk 26
@@ -11,6 +13,7 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -24,6 +27,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
+
 dependencies {
-    implementation 'com.squareup.okhttp3:okhttp:3.12.13'
+    // Bersih tanpa library luar untuk menghindari eror kompilasi
 }
