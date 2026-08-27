@@ -12,8 +12,10 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-    - name: Build with system Gradle
-      run: gradle assembleDebug --no-daemon
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle Wrapper 8.2
+      run: ./gradlew assembleDebug --no-daemon
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
