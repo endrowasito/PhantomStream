@@ -25,5 +25,5 @@ android {
     }
 }
 dependencies {
-    // Tidak ada dependensi eksternal
+    implementation 'com.squareup.okhttp3:okhttp:3.12.13'
 }

