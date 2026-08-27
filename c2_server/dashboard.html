@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head><title>Phantom Dashboard</title></head>
+<body>
+<h1>Phantom C2</h1>
+<pre id="log"></pre>
+<script>
+var ws = new WebSocket('ws://' + location.hostname + ':5000');
+ws.onmessage = function(e) {
+    var log = document.getElementById('log');
+    log.textContent += e.data + '\n';
+    log.scrollTop = log.scrollHeight;
+};
+</script>
+</body>
+</html>
