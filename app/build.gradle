@@ -1,11 +1,10 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
 }
-
 android {
     namespace 'com.system.phantom'
     compileSdk 34
-
     defaultConfig {
         applicationId "com.system.phantom"
         minSdk 26
@@ -13,21 +12,16 @@ android {
         versionCode 1
         versionName "1.0"
     }
-
     buildTypes {
-        release {
-            minifyEnabled false
-        }
-        debug {
-            minifyEnabled false
-        }
+        release { minifyEnabled false }
+        debug { minifyEnabled false }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
-
 dependencies {
-    // Bersih tanpa library luar untuk menghindari eror kompilasi
+    implementation 'com.google.firebase:firebase-database:20.3.0'
+    implementation 'com.google.firebase:firebase-auth:22.3.0'
 }
