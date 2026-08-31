@@ -1,9 +1,0 @@
-version: '3.8'
-services:
-  c2:
-    build: .
-    container_name: phantom-c2
-    restart: always
-    network_mode: host
-    volumes:
-      - ./logs:/app/logs
